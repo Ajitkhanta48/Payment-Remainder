@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khanta Payment Reminder</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Khanta Payment Reminder</h1>
+
+    <div class="card">
+        <input type="text" id="name" placeholder="Customer Name">
+        <input type="text" id="mobile" placeholder="Mobile Number">
+        <input type="number" id="amount" placeholder="Due Amount">
+        <input type="date" id="date">
+        <button onclick="addRecord()">Add Payment Due</button>
+    </div>
+
+    <div class="card">
+        <input type="text" id="search" placeholder="Search Customer" onkeyup="loadData()">
+    </div>
+
+    <div id="records"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
