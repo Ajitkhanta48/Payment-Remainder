@@ -2,28 +2,42 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khanta Payment Reminder</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Khanta Reminder Pro</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>Khanta Payment Reminder</h1>
 
-    <div class="card">
-        <input type="text" id="name" placeholder="Customer Name">
-        <input type="text" id="mobile" placeholder="Mobile Number">
-        <input type="number" id="amount" placeholder="Due Amount">
-        <input type="date" id="date">
-        <button onclick="addRecord()">Add Payment Due</button>
+<h1>Khanta Reminder Pro</h1>
+
+<div class="stats">
+    <div class="box">
+        <h2 id="totalCustomers">0</h2>
+        <p>Customers</p>
     </div>
 
-    <div class="card">
-        <input type="text" id="search" placeholder="Search Customer" onkeyup="loadData()">
+    <div class="box">
+        <h2 id="pendingAmount">₹0</h2>
+        <p>Pending</p>
     </div>
+</div>
 
-    <div id="records"></div>
+<div class="card">
+    <input type="text" id="name" placeholder="Customer Name">
+    <input type="text" id="mobile" placeholder="Mobile Number">
+    <input type="number" id="amount" placeholder="Amount">
+    <input type="date" id="date">
+    <button onclick="addRecord()">Add Due</button>
+</div>
+
+<div class="card">
+    <input type="text" id="search" placeholder="Search Customer..." onkeyup="loadData()">
+</div>
+
+<div id="records"></div>
+
 </div>
 
 <script src="script.js"></script>
