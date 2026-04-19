@@ -1,95 +1,45 @@
- <!DOCTYPE html>
- <html lang="en">
- <head>
- <meta charset="UTF-8">
--<meta name="viewport" content="width=device-width,initial-scale=1">
-+<meta name="viewport" content="width=device-width, initial-scale=1">
-+<meta name="description" content="Track customer dues and payment reminders quickly with Khanta Reminder Pro.">
- <title>Khanta Reminder Pro</title>
- <link rel="stylesheet" href="style.css">
- </head>
- <body>
--
--<div class="container">
--
--<h1>Khanta Reminder Pro</h1>
--
--<div class="stats">
--    <div class="box">
--        <h2 id="totalCustomers">0</h2>
--        <p>Customers</p>
--    </div>
--
--    <div class="box">
--        <h2 id="pendingAmount">₹0</h2>
--        <p>Pending</p>
--    </div>
--</div>
--
--<div class="card">
--    <input type="text" id="name" placeholder="Customer Name">
--    <input type="text" id="mobile" placeholder="Mobile Number">
--    <input type="number" id="amount" placeholder="Amount">
--    <input type="date" id="date">
--    <button onclick="addRecord()">Add Due</button>
--</div>
--
--<div class="card">
--    <input type="text" id="search" placeholder="Search Customer..." onkeyup="loadData()">
--</div>
--
--<div id="records"></div>
--
--</div>
-+<main class="container" aria-label="Khanta Reminder Pro app">
-+    <header>
-+        <h1>Khanta Reminder Pro</h1>
-+    </header>
-+
-+    <section class="stats" aria-label="Overview statistics">
-+        <div class="box" aria-live="polite">
-+            <h2 id="totalCustomers">0</h2>
-+            <p>Customers</p>
-+        </div>
-+
-+        <div class="box" aria-live="polite">
-+            <h2 id="pendingAmount">₹0</h2>
-+            <p>Pending</p>
-+        </div>
-+    </section>
-+
-+    <section class="card" aria-label="Add due form">
-+        <label for="name">Customer Name</label>
-+        <input type="text" id="name" placeholder="Customer Name" autocomplete="name" required>
-+
-+        <label for="mobile">Mobile Number</label>
-+        <input
-+            type="tel"
-+            id="mobile"
-+            placeholder="Mobile Number"
-+            inputmode="numeric"
-+            autocomplete="tel"
-+            pattern="[0-9]{10}"
-+            required
-+        >
-+
-+        <label for="amount">Amount</label>
-+        <input type="number" id="amount" placeholder="Amount" min="1" step="1" required>
-+
-+        <label for="date">Due Date</label>
-+        <input type="date" id="date" required>
-+
-+        <button type="button" onclick="addRecord()">Add Due</button>
-+    </section>
-+
-+    <section class="card" aria-label="Search customer">
-+        <label for="search">Search Customer</label>
-+        <input type="search" id="search" placeholder="Search Customer..." onkeyup="loadData()">
-+    </section>
-+
-+    <section id="records" aria-label="Customer records"></section>
-+</main>
- 
- <script src="script.js"></script>
- </body>
- </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Khanta Reminder Pro</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h1>Khanta Reminder Pro</h1>
+
+<div class="stats">
+    <div class="box">
+        <h2 id="totalCustomers">0</h2>
+        <p>Customers</p>
+    </div>
+
+    <div class="box">
+        <h2 id="pendingAmount">₹0</h2>
+        <p>Pending</p>
+    </div>
+</div>
+
+<div class="card">
+    <input type="text" id="name" placeholder="Customer Name">
+    <input type="text" id="mobile" placeholder="Mobile Number">
+    <input type="number" id="amount" placeholder="Amount">
+    <input type="date" id="date">
+    <button onclick="addRecord()">Add Due</button>
+</div>
+
+<div class="card">
+    <input type="text" id="search" placeholder="Search Customer..." onkeyup="loadData()">
+</div>
+
+<div id="records"></div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
