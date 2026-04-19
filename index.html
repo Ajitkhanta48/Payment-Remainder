@@ -1,42 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Track customer payments and reminders in Khanta Reminder Pro.">
-  <title>Khanta Reminder Pro</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Khanta Reminder App</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="container">
-    <h1>Khanta Reminder Pro</h1>
 
-    <section class="stats" aria-label="Dashboard stats">
-      <div class="box">
-        <h2 id="totalCustomers">0</h2>
-        <p>Customers</p>
-      </div>
-      <div class="box">
-        <h2 id="pendingAmount">₹0</h2>
-        <p>Pending</p>
-      </div>
-    </section>
+<div class="container">
 
-    <section class="card" aria-label="Add due">
-      <input type="text" id="name" placeholder="Customer Name" autocomplete="name">
-      <input type="tel" id="mobile" placeholder="Mobile Number" inputmode="numeric" autocomplete="tel">
-      <input type="number" id="amount" placeholder="Amount" min="1" step="1">
-      <input type="date" id="date">
-      <button type="button" onclick="addRecord()">Add Due</button>
-    </section>
+<header>
+    <h1>Khanta Reminder</h1>
+</header>
 
-    <section class="card" aria-label="Search customer">
-      <input type="search" id="search" placeholder="Search Customer..." onkeyup="loadData()">
-    </section>
+<!-- HOME -->
+<section id="home" class="page active">
+    <div class="stats-grid">
+        <div class="box">
+            <h2 id="totalCustomers">0</h2>
+            <p>Customers</p>
+        </div>
 
-    <section id="records" aria-label="Records list"></section>
-  </main>
+        <div class="box">
+            <h2 id="pendingAmount">₹0</h2>
+            <p>Pending</p>
+        </div>
 
-  <script src="script.js"></script>
+        <div class="box">
+            <h2 id="dueToday">0</h2>
+            <p>Due Today</p>
+        </div>
+
+        <div class="box">
+            <h2 id="paidCount">0</h2>
+            <p>Paid</p>
+        </div>
+    </div>
+</section>
+
+<!-- ADD REMINDER -->
+<section id="add" class="page">
+
+<div class="card">
+<input type="text" id="name" placeholder="Customer Name">
+<input type="text" id="mobile" placeholder="Mobile Number">
+<input type="number" id="amount" placeholder="Amount">
+<input type="date" id="date">
+<input type="text" id="note" placeholder="Note">
+<button onclick="addRecord()">Save Reminder</button>
+</div>
+
+</section>
+
+<!-- LIST -->
+<section id="list" class="page">
+
+<div class="card">
+<input type="text" id="search" placeholder="Search Customer..." onkeyup="loadData()">
+</div>
+
+<div id="records"></div>
+
+</section>
+
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('add')">Add</button>
+<button onclick="showPage('list')">List</button>
+</nav>
+
+<script src="script.js"></script>
 </body>
 </html>
