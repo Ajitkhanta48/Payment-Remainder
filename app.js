@@ -1,445 +1,447 @@
 /* ==========================================
-   app.js
-   FINAL FIXED VERSION
-   Frontend Controller Only
+   Khanta Payment Reminder
+   FINAL PRODUCTION app.js
 ========================================== */
 
+/* ---------- App State ---------- */
+let appData = [];
+let isLoading = false;
+let lastFetch = 0;
+const CACHE_MS = 30000; // 30 seconds cache
 
 /* ==========================================
-   DOM READY
+   START
 ========================================== */
 document.addEventListener("DOMContentLoaded", () => {
-
+    setupEvents();
+    setYear();
     showPage("home");
-
+    initNetworkBar();
 });
 
+/* ==========================================
+   EVENTS
+========================================== */
+function setupEvents() {
+    byId("homeBtn")?.addEventListener("click", () => showPage("home"));
+    byId("addBtn")?.addEventListener("click", () => showPage("add"));
+    byId("listBtn")?.addEventListener("click", () => showPage("list"));
+
+    byId("saveBtn")?.addEventListener("click", saveReminder);
+
+    byId("search")?.addEventListener(
+        "input",
+        debounce(() => renderRecords(appData), 220)
+    );
+}
 
 /* ==========================================
    PAGE NAVIGATION
 ========================================== */
-function showPage(pageId){
-
-    document.querySelectorAll(".page")
-    .forEach(page=>{
+function showPage(pageId) {
+    document.querySelectorAll(".page").forEach(page => {
         page.classList.remove("active");
     });
 
-    const target =
-    document.getElementById(pageId);
+    byId(pageId)?.classList.add("active");
 
-    if(target){
-        target.classList.add("active");
-    }
-
-    document.querySelectorAll(".nav-btn")
-    .forEach(btn=>{
+    document.querySelectorAll(".nav-btn").forEach(btn => {
         btn.classList.remove("active-btn");
     });
 
-    const activeBtn =
-    document.getElementById(pageId + "Btn");
+    byId(pageId + "Btn")?.classList.add("active-btn");
 
-    if(activeBtn){
-        activeBtn.classList.add("active-btn");
-    }
-
-    if(pageId === "home" ||
-       pageId === "list"){
-        refreshDashboard();
+    if (pageId === "home" || pageId === "list") {
+        loadDataSmart();
     }
 }
 
+/* ==========================================
+   SMART DATA LOADING
+========================================== */
+async function loadDataSmart() {
+    const now = Date.now();
+
+    if (appData.length && now - lastFetch < CACHE_MS) {
+        renderDashboard(appData);
+        renderRecords(appData);
+        backgroundRefresh();
+        return;
+    }
+
+    await fullRefresh();
+}
+
+async function fullRefresh() {
+    if (isLoading) return;
+
+    isLoading = true;
+
+    if (!appData.length) {
+        showLoader();
+    }
+
+    const data = await getRecordsAPI();
+
+    isLoading = false;
+
+    if (!data) {
+        if (!appData.length) renderError();
+        return;
+    }
+
+    appData = data;
+    lastFetch = Date.now();
+
+    renderDashboard(appData);
+    renderRecords(appData);
+}
+
+async function backgroundRefresh() {
+    if (isLoading) return;
+
+    isLoading = true;
+
+    const data = await getRecordsAPI();
+
+    isLoading = false;
+
+    if (!data) return;
+
+    appData = data;
+    lastFetch = Date.now();
+
+    renderDashboard(appData);
+    renderRecords(appData);
+}
 
 /* ==========================================
    SAVE REMINDER
 ========================================== */
-async function saveReminder(){
+async function saveReminder() {
+    const payload = {
+        name: val("name"),
+        mobile: val("mobile"),
+        amount: val("amount"),
+        date: byId("date").value,
+        note: val("note")
+    };
 
-    const name =
-    document.getElementById("name")
-    .value.trim();
-
-    const mobile =
-    document.getElementById("mobile")
-    .value.trim();
-
-    const amount =
-    document.getElementById("amount")
-    .value.trim();
-
-    const date =
-    document.getElementById("date")
-    .value;
-
-    const note =
-    document.getElementById("note")
-    .value.trim();
-
-    if(!name || !mobile ||
-       !amount || !date){
-
-        alert("Please fill all fields.");
+    if (!payload.name || !payload.mobile || !payload.amount || !payload.date) {
+        toast("Please fill all fields");
         return;
     }
 
-    if(mobile.length < 10 ||
-       isNaN(mobile)){
-
-        alert("Enter valid mobile.");
+    if (payload.mobile.length < 10 || isNaN(payload.mobile)) {
+        toast("Enter valid mobile number");
         return;
     }
 
-    const btn =
-    document.getElementById("saveBtn");
+    if (Number(payload.amount) <= 0) {
+        toast("Enter valid amount");
+        return;
+    }
 
-    btn.innerText = "Saving...";
+    const btn = byId("saveBtn");
     btn.disabled = true;
+    btn.innerText = "Saving...";
 
-    const ok =
-    await addRecordAPI({
-        name,
-        mobile,
-        amount,
-        date,
-        note
-    });
-
-    btn.innerText =
-    "Save Reminder";
+    const ok = await addRecordAPI(payload);
 
     btn.disabled = false;
+    btn.innerText = "💾 Save Reminder";
 
-    if(ok){
-
-        clearForm();
-
-        alert("Saved Successfully");
-
-        showPage("home");
-
-    }else{
-
-        alert("Save Failed");
-    }
-}
-
-
-/* ==========================================
-   LOAD DATA
-========================================== */
-async function refreshDashboard(){
-
-    showLoader();
-
-    const data =
-    await getRecordsAPI();
-
-    if(!data){
-
-        renderError();
+    if (!ok) {
+        toast("Save Failed");
         return;
     }
 
-    renderDashboard(data);
-    renderRecords(data);
-}
+    clearForm();
+    toast("Saved Successfully");
+    vibrate(50);
 
+    await fullRefresh();
+    showPage("home");
+}
 
 /* ==========================================
    DASHBOARD
 ========================================== */
-function renderDashboard(data){
-
-    const today =
-    new Date()
-    .toISOString()
-    .split("T")[0];
+function renderDashboard(data) {
+    const today = isoToday();
 
     let total = data.length;
     let pending = 0;
     let due = 0;
     let paid = 0;
 
-    data.forEach(row=>{
-
-        if(row.status !== "Paid"){
-            pending +=
-            Number(row.amount);
-        }
-
-        if(row.status === "Paid"){
-            paid++;
-        }
-
-        if(
-          row.date === today &&
-          row.status !== "Paid"
-        ){
-            due++;
-        }
-
+    data.forEach(r => {
+        if (r.status !== "Paid") pending += Number(r.amount);
+        if (r.status === "Paid") paid++;
+        if (r.date === today && r.status !== "Paid") due++;
     });
 
-    document.getElementById(
-    "totalCustomers")
-    .innerText = total;
-
-    document.getElementById(
-    "pendingAmount")
-    .innerText =
-    "₹" + pending;
-
-    document.getElementById(
-    "dueToday")
-    .innerText = due;
-
-    document.getElementById(
-    "paidCount")
-    .innerText = paid;
+    text("totalCustomers", total);
+    text("pendingAmount", "₹" + pending);
+    text("dueToday", due);
+    text("paidCount", paid);
 }
 
-
 /* ==========================================
-   RECORD LIST
+   RECORDS LIST
 ========================================== */
-function renderRecords(data){
+function renderRecords(data) {
+    const box = byId("records");
+    if (!box) return;
 
-    const box =
-    document.getElementById(
-    "records"
-    );
+    const search = byId("search")
+        ? byId("search").value.toLowerCase()
+        : "";
 
-    if(!box) return;
-
-    const searchInput =
-    document.getElementById(
-    "search"
-    );
-
-    const search =
-    searchInput
-    ? searchInput.value
-      .toLowerCase()
-    : "";
-
-    const today =
-    new Date()
-    .toISOString()
-    .split("T")[0];
+    const today = isoToday();
 
     let html = "";
 
-    data.reverse()
-    .forEach(row=>{
-
-        const text =
-        (
-         row.name + " " +
-         row.mobile + " " +
-         row.note
+    [...data].reverse().forEach(r => {
+        const txt = (
+            r.name + " " +
+            r.mobile + " " +
+            (r.note || "")
         ).toLowerCase();
 
-        if(search &&
-          !text.includes(search)){
-            return;
-        }
+        if (search && !txt.includes(search)) return;
 
         let cls = "record";
 
-        if(
-          row.date < today &&
-          row.status !== "Paid"
-        ){
-            cls += " overdue";
-        }
-        else if(
-          row.date === today &&
-          row.status !== "Paid"
-        ){
-            cls += " today";
+        if (r.status !== "Paid") {
+            if (r.date < today) cls += " overdue";
+            else if (r.date === today) cls += " today";
         }
 
         html += `
         <div class="${cls}">
+            <h3>${r.name}</h3>
 
-        <h3>${row.name}</h3>
+            <p>📞 ${r.mobile}</p>
+            <p>₹ ${r.amount}</p>
+            <p>📅 ${r.date}</p>
+            <p>📝 ${r.note || "-"}</p>
+            <p>Status: ${r.status}</p>
 
-        <p>📞 ${row.mobile}</p>
-        <p>₹ ${row.amount}</p>
-        <p>📅 ${row.date}</p>
-        <p>📝 ${row.note || "-"}</p>
-        <p>Status: ${row.status}</p>
+            <div class="actions">
 
-        <div class="actions">
+                ${
+                    r.status !== "Paid"
+                    ? `<button class="paid"
+                       onclick="payNow(${r.row})">
+                       Paid
+                       </button>`
+                    : `<button class="paid">
+                       Done
+                       </button>`
+                }
 
-        ${
-        row.status !== "Paid"
-        ?
-        `<button class="paid"
-        onclick="payNow(${row.row})">
-        Paid
-        </button>`
-        :
-        `<button class="paid">
-        Done
-        </button>`
-        }
+                <button class="whatsapp"
+                onclick="sendWA(
+                '${r.mobile}',
+                '${r.name}',
+                '${r.amount}'
+                )">
+                WA
+                </button>
 
-        <button class="whatsapp"
-        onclick="sendWA(
-        '${row.mobile}',
-        '${row.name}',
-        '${row.amount}'
-        )">
-        WA
-        </button>
+                <button class="delete"
+                onclick="removeRecord(${r.row})">
+                Delete
+                </button>
 
-        <button class="delete"
-        onclick="removeRecord(
-        ${row.row}
-        )">
-        Delete
-        </button>
-
-        </div>
-        </div>
-        `;
+            </div>
+        </div>`;
     });
 
-    if(html === ""){
-        html =
+    box.innerHTML =
+        html ||
         `<div class="card empty">
-        No reminders found.
+        No reminders found
         </div>`;
-    }
-
-    box.innerHTML = html;
 }
-
 
 /* ==========================================
    PAID
 ========================================== */
-async function payNow(row){
+async function payNow(row) {
+    const ok = await markPaidAPI(row);
 
-    await markPaidAPI(row);
-
-    refreshDashboard();
+    if (ok) {
+        toast("Marked Paid");
+        vibrate(40);
+        await fullRefresh();
+    } else {
+        toast("Failed");
+    }
 }
-
 
 /* ==========================================
    DELETE
 ========================================== */
-async function removeRecord(row){
+async function removeRecord(row) {
+    if (!confirm("Delete reminder?")) return;
 
-    const ok =
-    confirm("Delete reminder?");
+    const ok = await deleteRecordAPI(row);
 
-    if(!ok) return;
-
-    await deleteRecordAPI(row);
-
-    refreshDashboard();
+    if (ok) {
+        toast("Deleted");
+        vibrate(40);
+        await fullRefresh();
+    } else {
+        toast("Delete Failed");
+    }
 }
-
 
 /* ==========================================
    WHATSAPP
 ========================================== */
-function sendWA(
-mobile,name,amount
-){
-
-const msg =
+function sendWA(mobile, name, amount) {
+    const msg =
 `Hello ${name},
 
-Your payment of ₹${amount}
-is pending.
+Your payment of ₹${amount} is pending.
 
 Please pay soon.
 
 Khanta Enterprises`;
 
-window.open(
-"https://wa.me/91" +
-mobile +
-"?text=" +
-encodeURIComponent(msg),
-"_blank"
-);
+    const url =
+        "https://wa.me/91" +
+        mobile +
+        "?text=" +
+        encodeURIComponent(msg);
 
+    window.open(url, "_blank");
 }
 
+/* ==========================================
+   TOAST
+========================================== */
+function toast(msg) {
+    let t = document.querySelector(".toast");
+
+    if (!t) {
+        t = document.createElement("div");
+        t.className = "toast";
+        document.body.appendChild(t);
+    }
+
+    t.innerText = msg;
+    t.classList.add("show");
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer = setTimeout(() => {
+        t.classList.remove("show");
+    }, 2200);
+}
+
+/* ==========================================
+   NETWORK STATUS
+========================================== */
+function initNetworkBar() {
+    window.addEventListener("online", () => showNet("Back Online", true));
+    window.addEventListener("offline", () => showNet("No Internet", false));
+}
+
+function showNet(msg, online) {
+    let bar = document.querySelector(".netbar");
+
+    if (!bar) {
+        bar = document.createElement("div");
+        bar.className = "netbar";
+        document.body.appendChild(bar);
+    }
+
+    bar.innerText = msg;
+    bar.className = "netbar show " + (online ? "online" : "offline");
+
+    clearTimeout(window.netTimer);
+
+    window.netTimer = setTimeout(() => {
+        bar.classList.remove("show");
+    }, 2200);
+}
 
 /* ==========================================
    HELPERS
 ========================================== */
-function clearForm(){
-
-document.getElementById(
-"name").value = "";
-
-document.getElementById(
-"mobile").value = "";
-
-document.getElementById(
-"amount").value = "";
-
-document.getElementById(
-"date").value = "";
-
-document.getElementById(
-"note").value = "";
-
+function byId(id) {
+    return document.getElementById(id);
 }
 
-
-function showLoader(){
-
-const box =
-document.getElementById(
-"records"
-);
-
-if(box){
-box.innerHTML =
-`<div class="card empty">
-Loading...
-</div>`;
+function val(id) {
+    return byId(id).value.trim();
 }
 
+function text(id, v) {
+    if (byId(id)) byId(id).innerText = v;
 }
 
-
-function renderError(){
-
-const box =
-document.getElementById(
-"records"
-);
-
-if(box){
-box.innerHTML =
-`<div class="card empty">
-Unable to connect backend.
-</div>`;
+function isoToday() {
+    return new Date().toISOString().split("T")[0];
 }
 
+function setYear() {
+    if (byId("year")) {
+        byId("year").textContent =
+            new Date().getFullYear();
+    }
 }
 
+function clearForm() {
+    ["name", "mobile", "amount", "date", "note"]
+    .forEach(id => {
+        if (byId(id)) byId(id).value = "";
+    });
+}
+
+function showLoader() {
+    const box = byId("records");
+
+    if (box) {
+        box.innerHTML = `
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>`;
+    }
+}
+
+function renderError() {
+    const box = byId("records");
+
+    if (box) {
+        box.innerHTML = `
+        <div class="card empty">
+        Unable to connect backend
+        </div>`;
+    }
+}
+
+function debounce(fn, delay) {
+    let t;
+
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), delay);
+    };
+}
+
+function vibrate(ms = 30) {
+    if (navigator.vibrate) {
+        navigator.vibrate(ms);
+    }
+}
 
 /* ==========================================
-   GLOBAL FUNCTIONS
+   GLOBAL (for inline buttons)
 ========================================== */
-window.showPage = showPage;
-window.saveReminder = saveReminder;
-window.refreshDashboard =
-refreshDashboard;
-
 window.payNow = payNow;
-window.removeRecord =
-removeRecord;
-
+window.removeRecord = removeRecord;
 window.sendWA = sendWA;
