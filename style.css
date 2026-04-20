@@ -9,12 +9,18 @@ body{
 background:#f2f4f8;
 padding:0;
 color:#222;
+display:flex;
+flex-direction:column;
+min-height:100vh;
 }
 
+/* MAIN CONTAINER */
 .container{
 max-width:700px;
+width:100%;
 margin:auto;
 padding:15px;
+flex:1;
 }
 
 /* HEADER */
@@ -54,7 +60,6 @@ color:white;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
-margin:0;
 transition:0.2s;
 }
 
@@ -107,10 +112,156 @@ box-shadow:0 4px 10px rgba(0,0,0,0.08);
 margin-bottom:15px;
 }
 
-/* INPUTS */
+/* INPUT */
 input{
 width:100%;
 padding:12px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:10px;
+font-size:16px;
+outline:none;
+background:white;
+}
+
+input:focus{
+border-color:#1e88e5;
+}
+
+/* BUTTONS */
+button{
+padding:12px;
+border:none;
+border-radius:10px;
+background:#1e88e5;
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.card button{
+width:100%;
+}
+
+/* RECORD CARD */
+.record{
+background:white;
+padding:15px;
+border-radius:14px;
+margin-bottom:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.record h3{
+font-size:20px;
+margin-bottom:6px;
+color:#222;
+}
+
+.record p{
+margin:4px 0;
+font-size:15px;
+color:#555;
+}
+
+/* ACTION BUTTONS */
+.actions{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:8px;
+margin-top:12px;
+}
+
+.actions button{
+padding:10px;
+font-size:14px;
+width:100%;
+}
+
+.paid{
+background:#43a047;
+}
+
+.delete{
+background:#e53935;
+}
+
+.whatsapp{
+background:#25D366;
+}
+
+/* ALERTS */
+.overdue{
+border-left:5px solid red;
+}
+
+.today{
+border-left:5px solid orange;
+}
+
+/* FOOTER */
+footer{
+margin-top:auto;
+background:white;
+padding:18px;
+text-align:center;
+box-shadow:0 -4px 10px rgba(0,0,0,0.08);
+font-size:15px;
+color:#555;
+width:100%;
+}
+
+footer strong{
+color:#1e88e5;
+}
+
+footer p{
+margin:4px 0;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+
+.container{
+padding:12px;
+}
+
+header h1{
+font-size:28px;
+}
+
+.top-nav button{
+font-size:15px;
+padding:10px;
+}
+
+.box{
+padding:18px;
+}
+
+.box h2{
+font-size:28px;
+}
+
+.box p{
+font-size:15px;
+}
+
+.record h3{
+font-size:18px;
+}
+
+.actions{
+grid-template-columns:1fr;
+}
+
+footer{
+font-size:14px;
+padding:15px;
+}
+
+}padding:12px;
 margin-bottom:10px;
 border:1px solid #ddd;
 border-radius:10px;
