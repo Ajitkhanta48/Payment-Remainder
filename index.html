@@ -2,89 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Khanta Reminder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khanta Payment Reminder</title>
 <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<div class="container">
+<div class="app">
 
-<!-- HEADER -->
-<header>
-    <h1>Khanta Reminder</h1>
-</header>
+    <!-- Header -->
+    <header class="header">
+        <h1>Khanta Payment Reminder</h1>
+        <p>Manage pending collections smartly</p>
+    </header>
 
-<!-- TOP NAVIGATION -->
-<nav class="top-nav">
-    <button onclick="showPage('home')">Home</button>
-    <button onclick="showPage('add')">Add</button>
-    <button onclick="showPage('list')">List</button>
-</nav>
+    <!-- Top Navigation -->
+    <nav class="nav">
+        <button onclick="showPage('home')" class="nav-btn active-btn" id="homeBtn">Home</button>
+        <button onclick="showPage('add')" class="nav-btn" id="addBtn">Add</button>
+        <button onclick="showPage('list')" class="nav-btn" id="listBtn">List</button>
+    </nav>
 
-<!-- HOME PAGE -->
-<section id="home" class="page active">
+    <!-- HOME -->
+    <section id="home" class="page active">
 
-<div class="stats-grid">
+        <div class="grid">
 
-    <div class="box">
-        <h2 id="totalCustomers">0</h2>
-        <p>Customers</p>
-    </div>
+            <div class="card stat">
+                <h2 id="totalCustomers">0</h2>
+                <p>Customers</p>
+            </div>
 
-    <div class="box">
-        <h2 id="pendingAmount">₹0</h2>
-        <p>Pending</p>
-    </div>
+            <div class="card stat">
+                <h2 id="pendingAmount">₹0</h2>
+                <p>Pending</p>
+            </div>
 
-    <div class="box">
-        <h2 id="dueToday">0</h2>
-        <p>Due Today</p>
-    </div>
+            <div class="card stat">
+                <h2 id="dueToday">0</h2>
+                <p>Due Today</p>
+            </div>
 
-    <div class="box">
-        <h2 id="paidCount">0</h2>
-        <p>Paid</p>
-    </div>
+            <div class="card stat">
+                <h2 id="paidCount">0</h2>
+                <p>Paid</p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ADD -->
+    <section id="add" class="page">
+
+        <div class="card form-card">
+
+            <h3>Add New Reminder</h3>
+
+            <input type="text" id="name" placeholder="Customer Name">
+
+            <input type="tel" id="mobile" maxlength="10" placeholder="Mobile Number">
+
+            <input type="number" id="amount" placeholder="Amount">
+
+            <input type="date" id="date">
+
+            <input type="text" id="note" placeholder="Note">
+
+            <button onclick="addRecord()" id="saveBtn">Save Reminder</button>
+
+        </div>
+
+    </section>
+
+    <!-- LIST -->
+    <section id="list" class="page">
+
+        <div class="card search-card">
+            <input type="text" id="search" placeholder="Search Customer..." onkeyup="loadData()">
+        </div>
+
+        <div id="records"></div>
+
+    </section>
 
 </div>
 
-</section>
-
-<!-- ADD PAGE -->
-<section id="add" class="page">
-
-<div class="card">
-
-<input type="text" id="name" placeholder="Customer Name">
-<input type="text" id="mobile" placeholder="Mobile Number">
-<input type="number" id="amount" placeholder="Amount">
-<input type="date" id="date">
-<input type="text" id="note" placeholder="Note">
-
-<button onclick="addRecord()">Save Reminder</button>
-
-</div>
-
-</section>
-
-<!-- LIST PAGE -->
-<section id="list" class="page">
-
-<div class="card">
-<input type="text" id="search" placeholder="Search Customer..." onkeyup="loadData()">
-</div>
-
-<div id="records"></div>
-
-</section>
-
-</div>
-
-<!-- FOOTER -->
-<footer>
-    <p>© <span id="year"></span> <strong>Khanta Enterprises</strong></p>
-    <p>Payment Reminder System</p>
+<footer class="footer">
+    <p>© <span id="year"></span> Khanta Enterprises</p>
 </footer>
 
 <script src="script.js"></script>
