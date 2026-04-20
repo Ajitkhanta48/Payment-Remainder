@@ -1,4 +1,4 @@
-const sheetURL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+const sheetURL = "https://script.google.com/macros/s/AKfycbx8E1pYdwnNqLOVFHXjMMOwR5I9RVdx-GKsXlswtzPzRLrCK1GJoaXW8geELO5V9HLB/exec";
 
 /* ---------- Navigation ---------- */
 function showPage(pageId){
