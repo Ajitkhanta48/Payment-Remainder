@@ -1,54 +1,111 @@
 /* ==========================================
-   api.js
-   Backend Connector Only
    Khanta Payment Reminder
+   FINAL PRODUCTION api.js
 ========================================== */
 
-/* Google Apps Script Backend URL */
 const API_URL =
 "https://script.google.com/macros/s/AKfycby8zE_4fozs1ps3wmF3yj_DQPcuO7akkXEM1z_pD1z3X4J2caCQW8pocTTacPP9X3BbgA/exec";
 
+/* Request timeout */
+const API_TIMEOUT = 15000;
+
 
 /* ==========================================
-   COMMON FETCH HELPER
+   CORE REQUEST
 ========================================== */
-async function requestAPI(options = {}){
+async function requestAPI(
+method = "GET",
+body = null
+){
 
-    try{
+const controller =
+new AbortController();
 
-        const res = await fetch(API_URL, options);
+const timer =
+setTimeout(()=>{
 
-        if(!res.ok){
-            throw new Error("Server Error");
-        }
+controller.abort();
 
-        return res;
+},API_TIMEOUT);
 
-    }catch(error){
+try{
 
-        console.log("API Error:", error);
-        return null;
-    }
+const options = {
+method,
+signal:
+controller.signal
+};
+
+if(body){
+options.body = body;
+}
+
+const res =
+await fetch(
+API_URL,
+options
+);
+
+clearTimeout(
+timer
+);
+
+if(!res.ok){
+throw new Error(
+"Server Error"
+);
+}
+
+return res;
+
+}catch(error){
+
+clearTimeout(
+timer
+);
+
+console.log(
+"API Error:",
+error
+);
+
+return null;
+}
+
 }
 
 
 /* ==========================================
-   GET ALL RECORDS
+   GET RECORDS
 ========================================== */
 async function getRecordsAPI(){
 
-    const res = await requestAPI({
-        method:"GET"
-    });
+const res =
+await requestAPI(
+"GET"
+);
 
-    if(!res) return null;
+if(!res) return null;
 
-    try{
-        return await res.json();
-    }catch(error){
-        console.log("JSON Error:", error);
-        return null;
-    }
+try{
+
+const data =
+await res.json();
+
+return Array.isArray(data)
+? data
+: [];
+
+}catch(error){
+
+console.log(
+"JSON Error:",
+error
+);
+
+return [];
+}
+
 }
 
 
@@ -57,73 +114,108 @@ async function getRecordsAPI(){
 ========================================== */
 async function addRecordAPI(data){
 
-    const form =
-    new URLSearchParams();
+const form =
+new URLSearchParams();
 
-    form.append("action","add");
-    form.append("name",data.name);
-    form.append("mobile",data.mobile);
-    form.append("amount",data.amount);
-    form.append("date",data.date);
-    form.append("note",data.note);
+form.append(
+"action","add"
+);
 
-    const res = await requestAPI({
-        method:"POST",
-        body:form
-    });
+form.append(
+"name",data.name
+);
 
-    return res ? true : false;
+form.append(
+"mobile",data.mobile
+);
+
+form.append(
+"amount",data.amount
+);
+
+form.append(
+"date",data.date
+);
+
+form.append(
+"note",data.note
+);
+
+const res =
+await requestAPI(
+"POST",
+form
+);
+
+return !!res;
+
 }
 
 
 /* ==========================================
-   MARK AS PAID
+   MARK PAID
 ========================================== */
 async function markPaidAPI(row){
 
-    const form =
-    new URLSearchParams();
+const form =
+new URLSearchParams();
 
-    form.append("action","paid");
-    form.append("row",row);
+form.append(
+"action","paid"
+);
 
-    const res = await requestAPI({
-        method:"POST",
-        body:form
-    });
+form.append(
+"row",row
+);
 
-    return res ? true : false;
+const res =
+await requestAPI(
+"POST",
+form
+);
+
+return !!res;
+
 }
 
 
 /* ==========================================
-   DELETE RECORD
+   DELETE
 ========================================== */
 async function deleteRecordAPI(row){
 
-    const form =
-    new URLSearchParams();
+const form =
+new URLSearchParams();
 
-    form.append("action","delete");
-    form.append("row",row);
+form.append(
+"action","delete"
+);
 
-    const res = await requestAPI({
-        method:"POST",
-        body:form
-    });
+form.append(
+"row",row
+);
 
-    return res ? true : false;
+const res =
+await requestAPI(
+"POST",
+form
+);
+
+return !!res;
+
 }
 
 
 /* ==========================================
-   CHECK CONNECTION
+   HEALTH CHECK
 ========================================== */
 async function pingAPI(){
 
-    const res = await requestAPI({
-        method:"GET"
-    });
+const res =
+await requestAPI(
+"GET"
+);
 
-    return res ? true : false;
+return !!res;
+
 }
