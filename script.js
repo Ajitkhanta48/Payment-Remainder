@@ -1,152 +1,256 @@
-const sheetURL = "https://script.google.com/macros/s/AKfycbzHz-57K2bGgRD6Au8NRPxd4jgBab__p4I2OFQi9qUI/dev";
+/* ===============================
+   Khanta Payment Reminder System
+   Fully Regenerated script.js
+   =============================== */
 
-/* ---------- Navigation ---------- */
-function showPage(pageId){
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-document.getElementById(pageId).classList.add("active");
+/* 🔴 IMPORTANT:
+   Replace below URL with your Google Apps Script /exec URL
+*/
+const sheetURL =
+"https://script.google.com/macros/s/AKfycby8zE_4fozs1ps3wmF3yj_DQPcuO7akkXEM1z_pD1z3X4J2caCQW8pocTTacPP9X3BbgA/exec";
 
-if(pageId==="home" || pageId==="list"){
-loadData();
-}
-}
 
-/* ---------- Add Reminder ---------- */
-async function addRecord(){
+/* ===============================
+   PAGE NAVIGATION
+   =============================== */
+function showPage(pageId) {
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+    });
 
-const name=document.getElementById("name").value.trim();
-const mobile=document.getElementById("mobile").value.trim();
-const amount=document.getElementById("amount").value.trim();
-const date=document.getElementById("date").value;
-const note=document.getElementById("note").value.trim();
+    document.getElementById(pageId).classList.add("active");
 
-if(!name || !mobile || !amount || !date){
-alert("Fill all required fields");
-return;
-}
-
-const form=new URLSearchParams();
-form.append("action","add");
-form.append("name",name);
-form.append("mobile",mobile);
-form.append("amount",amount);
-form.append("date",date);
-form.append("note",note);
-
-await fetch(sheetURL,{
-method:"POST",
-body:form
-});
-
-alert("Reminder Saved");
-
-document.getElementById("name").value="";
-document.getElementById("mobile").value="";
-document.getElementById("amount").value="";
-document.getElementById("date").value="";
-document.getElementById("note").value="";
-
-showPage("home");
-setTimeout(loadData,1000);
+    if (pageId === "home" || pageId === "list") {
+        loadData();
+    }
 }
 
-/* ---------- Load Data ---------- */
-async function loadData(){
 
-const res=await fetch(sheetURL);
-const data=await res.json();
+/* ===============================
+   SAVE REMINDER
+   =============================== */
+async function addRecord() {
 
-const search=document.getElementById("search") ?
-document.getElementById("search").value.toLowerCase() : "";
+    const name   = document.getElementById("name").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    const amount = document.getElementById("amount").value.trim();
+    const date   = document.getElementById("date").value;
+    const note   = document.getElementById("note").value.trim();
 
-let html="";
-let totalCustomers=0;
-let pendingAmount=0;
-let dueToday=0;
-let paidCount=0;
+    /* Validation */
+    if (!name || !mobile || !amount || !date) {
+        alert("Please fill all required fields.");
+        return;
+    }
 
-const today=new Date().toISOString().split("T")[0];
+    if (mobile.length < 10) {
+        alert("Enter valid mobile number.");
+        return;
+    }
 
-data.reverse().forEach(row=>{
+    const form = new URLSearchParams();
+    form.append("action", "add");
+    form.append("name", name);
+    form.append("mobile", mobile);
+    form.append("amount", amount);
+    form.append("date", date);
+    form.append("note", note);
 
-totalCustomers++;
+    try {
 
-if(row.status!=="Paid") pendingAmount+=Number(row.amount);
-if(row.status==="Paid") paidCount++;
-if(row.date===today && row.status!=="Paid") dueToday++;
+        const btn = document.querySelector("#add button");
+        btn.innerText = "Saving...";
+        btn.disabled = true;
 
-if(search && !row.name.toLowerCase().includes(search)) return;
+        await fetch(sheetURL, {
+            method: "POST",
+            body: form
+        });
 
-let cls="record";
+        alert("Reminder Saved Successfully");
 
-if(row.date<today && row.status!=="Paid") cls+=" overdue";
-else if(row.date===today && row.status!=="Paid") cls+=" today";
+        /* Clear fields */
+        document.getElementById("name").value = "";
+        document.getElementById("mobile").value = "";
+        document.getElementById("amount").value = "";
+        document.getElementById("date").value = "";
+        document.getElementById("note").value = "";
 
-html += `
-<div class="${cls}">
-<h3>${row.name}</h3>
-<p>📞 ${row.mobile}</p>
-<p>₹ ${row.amount}</p>
-<p>📅 ${row.date}</p>
-<p>📝 ${row.note || ""}</p>
-<p>Status: ${row.status}</p>
+        showPage("home");
+        loadData();
 
-<div class="actions">
-${row.status!=="Paid"
-? `<button class="paid" onclick="markPaid(${row.row})">Paid</button>`
-: `<button class="paid">Done</button>`}
+    } catch (error) {
+        alert("Save Failed. Check Script URL.");
+        console.log(error);
+    }
 
-<button class="whatsapp" onclick="sendWhatsApp('${row.mobile}','${row.name}','${row.amount}')">WA</button>
-
-<button class="delete" onclick="deleteRecord(${row.row})">Delete</button>
-</div>
-</div>`;
-});
-
-document.getElementById("records").innerHTML=html;
-document.getElementById("totalCustomers").innerText=totalCustomers;
-document.getElementById("pendingAmount").innerText="₹"+pendingAmount;
-document.getElementById("dueToday").innerText=dueToday;
-document.getElementById("paidCount").innerText=paidCount;
+    const btn = document.querySelector("#add button");
+    btn.innerText = "Save Reminder";
+    btn.disabled = false;
 }
 
-/* ---------- Paid ---------- */
-async function markPaid(row){
 
-const form=new URLSearchParams();
-form.append("action","paid");
-form.append("row",row);
+/* ===============================
+   LOAD DATA
+   =============================== */
+async function loadData() {
 
-await fetch(sheetURL,{method:"POST",body:form});
-setTimeout(loadData,800);
+    try {
+
+        const res = await fetch(sheetURL);
+        const data = await res.json();
+
+        let html = "";
+
+        let totalCustomers = 0;
+        let pendingAmount = 0;
+        let dueToday = 0;
+        let paidCount = 0;
+
+        const today = new Date().toISOString().split("T")[0];
+
+        const searchBox = document.getElementById("search");
+        const search = searchBox
+            ? searchBox.value.toLowerCase()
+            : "";
+
+        data.reverse().forEach(row => {
+
+            totalCustomers++;
+
+            if (row.status !== "Paid") {
+                pendingAmount += Number(row.amount);
+            }
+
+            if (row.status === "Paid") {
+                paidCount++;
+            }
+
+            if (row.date === today && row.status !== "Paid") {
+                dueToday++;
+            }
+
+            if (search && !row.name.toLowerCase().includes(search)) {
+                return;
+            }
+
+            let cls = "record";
+
+            if (row.date < today && row.status !== "Paid") {
+                cls += " overdue";
+            }
+            else if (row.date === today && row.status !== "Paid") {
+                cls += " today";
+            }
+
+            html += `
+            <div class="${cls}">
+                <h3>${row.name}</h3>
+                <p>📞 ${row.mobile}</p>
+                <p>₹ ${row.amount}</p>
+                <p>📅 ${row.date}</p>
+                <p>📝 ${row.note || ""}</p>
+                <p>Status: ${row.status}</p>
+
+                <div class="actions">
+
+                    ${
+                        row.status !== "Paid"
+                        ? `<button class="paid" onclick="markPaid(${row.row})">Paid</button>`
+                        : `<button class="paid">Done</button>`
+                    }
+
+                    <button class="whatsapp"
+                    onclick="sendWhatsApp('${row.mobile}','${row.name}','${row.amount}')">
+                    WA
+                    </button>
+
+                    <button class="delete"
+                    onclick="deleteRecord(${row.row})">
+                    Delete
+                    </button>
+
+                </div>
+            </div>
+            `;
+        });
+
+        document.getElementById("records").innerHTML = html;
+
+        document.getElementById("totalCustomers").innerText = totalCustomers;
+        document.getElementById("pendingAmount").innerText = "₹" + pendingAmount;
+        document.getElementById("dueToday").innerText = dueToday;
+        document.getElementById("paidCount").innerText = paidCount;
+
+    } catch (error) {
+        console.log(error);
+    }
 }
 
-/* ---------- Delete ---------- */
-async function deleteRecord(row){
 
-if(!confirm("Delete this reminder?")) return;
+/* ===============================
+   MARK PAID
+   =============================== */
+async function markPaid(row) {
 
-const form=new URLSearchParams();
-form.append("action","delete");
-form.append("row",row);
+    const form = new URLSearchParams();
+    form.append("action", "paid");
+    form.append("row", row);
 
-await fetch(sheetURL,{method:"POST",body:form});
-setTimeout(loadData,800);
+    await fetch(sheetURL, {
+        method: "POST",
+        body: form
+    });
+
+    loadData();
 }
 
-/* ---------- WhatsApp ---------- */
-function sendWhatsApp(mobile,name,amount){
 
-const msg=`Hello ${name},
+/* ===============================
+   DELETE RECORD
+   =============================== */
+async function deleteRecord(row) {
+
+    if (!confirm("Delete this reminder?")) return;
+
+    const form = new URLSearchParams();
+    form.append("action", "delete");
+    form.append("row", row);
+
+    await fetch(sheetURL, {
+        method: "POST",
+        body: form
+    });
+
+    loadData();
+}
+
+
+/* ===============================
+   WHATSAPP REMINDER
+   =============================== */
+function sendWhatsApp(mobile, name, amount) {
+
+    const msg =
+`Hello ${name},
+
 Your payment of ₹${amount} is pending.
+
 Please pay soon.
 
 Khanta Enterprises`;
 
-window.open(
-"https://wa.me/91"+mobile+"?text="+encodeURIComponent(msg),
-"_blank"
-);
+    const url =
+    "https://wa.me/91" +
+    mobile +
+    "?text=" +
+    encodeURIComponent(msg);
+
+    window.open(url, "_blank");
 }
 
-/* ---------- Start ---------- */
+
+/* ===============================
+   START APP
+   =============================== */
 loadData();
