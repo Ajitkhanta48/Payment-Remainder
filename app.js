@@ -722,7 +722,16 @@ Khanta Enterprises`;
     window.open(url, "_blank");
 }
 
+/* ==========================================
+   GLOBAL ACCESS FOR HTML BUTTONS
+========================================== */
 
+window.showPage = showPage;
+window.saveReminder = saveReminder;
+window.refreshDashboard = refreshDashboard;
+window.payNow = payNow;
+window.removeRecord = removeRecord;
+window.sendWA = sendWA;
 /* ===============================
    START APP
    =============================== */
