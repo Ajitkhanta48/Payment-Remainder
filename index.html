@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Khanta Payment Reminder</title>
+
 <link rel="stylesheet" href="style.css">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -14,20 +17,44 @@
 
 <div class="app">
 
-    <!-- Header -->
+    <!-- HEADER -->
     <header class="header">
         <h1>Khanta Payment Reminder</h1>
         <p>Manage pending collections smartly</p>
     </header>
 
-    <!-- Top Navigation -->
+
+    <!-- NAVIGATION -->
     <nav class="nav">
-        <button onclick="showPage('home')" class="nav-btn active-btn" id="homeBtn">Home</button>
-        <button onclick="showPage('add')" class="nav-btn" id="addBtn">Add</button>
-        <button onclick="showPage('list')" class="nav-btn" id="listBtn">List</button>
+
+        <button
+        type="button"
+        id="homeBtn"
+        class="nav-btn active-btn"
+        onclick="showPage('home')">
+        Home
+        </button>
+
+        <button
+        type="button"
+        id="addBtn"
+        class="nav-btn"
+        onclick="showPage('add')">
+        Add
+        </button>
+
+        <button
+        type="button"
+        id="listBtn"
+        class="nav-btn"
+        onclick="showPage('list')">
+        List
+        </button>
+
     </nav>
 
-    <!-- HOME -->
+
+    <!-- HOME PAGE -->
     <section id="home" class="page active">
 
         <div class="grid">
@@ -56,34 +83,57 @@
 
     </section>
 
-    <!-- ADD -->
+
+    <!-- ADD PAGE -->
     <section id="add" class="page">
 
         <div class="card form-card">
 
             <h3>Add New Reminder</h3>
 
-            <input type="text" id="name" placeholder="Customer Name">
+            <input type="text"
+            id="name"
+            placeholder="Customer Name">
 
-            <input type="tel" id="mobile" maxlength="10" placeholder="Mobile Number">
+            <input type="tel"
+            id="mobile"
+            maxlength="10"
+            placeholder="Mobile Number">
 
-            <input type="number" id="amount" placeholder="Amount">
+            <input type="number"
+            id="amount"
+            placeholder="Amount">
 
-            <input type="date" id="date">
+            <input type="date"
+            id="date">
 
-            <input type="text" id="note" placeholder="Note">
+            <input type="text"
+            id="note"
+            placeholder="Note">
 
-            <button onclick="addRecord()" id="saveBtn">Save Reminder</button>
+            <button
+            type="button"
+            id="saveBtn"
+            onclick="saveReminder()">
+            Save Reminder
+            </button>
 
         </div>
 
     </section>
 
-    <!-- LIST -->
+
+    <!-- LIST PAGE -->
     <section id="list" class="page">
 
         <div class="card search-card">
-            <input type="text" id="search" placeholder="Search Customer..." onkeyup="loadData()">
+
+            <input
+            type="text"
+            id="search"
+            placeholder="Search Customer..."
+            onkeyup="refreshDashboard()">
+
         </div>
 
         <div id="records"></div>
@@ -92,15 +142,26 @@
 
 </div>
 
+
+<!-- FOOTER -->
 <footer class="footer">
-    <p>© <span id="year"></span> Khanta Enterprises</p>
+    <p>
+    © <span id="year"></span>
+    Khanta Enterprises
+    </p>
 </footer>
 
+
+<!-- YEAR -->
+<script>
+document.getElementById("year").textContent =
+new Date().getFullYear();
+</script>
+
+
+<!-- IMPORTANT SCRIPT ORDER -->
 <script src="api.js"></script>
 <script src="app.js"></script>
-<script>
-document.getElementById("year").textContent = new Date().getFullYear();
-</script>
 
 </body>
 </html>
