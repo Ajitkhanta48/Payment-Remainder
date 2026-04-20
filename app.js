@@ -1,17 +1,17 @@
 /* ==========================================
    app.js
-   Frontend UI Controller Only
-   Khanta Payment Reminder
+   FINAL FIXED VERSION
+   Frontend Controller Only
 ========================================== */
 
-/* Pages */
-const pages = document.querySelectorAll(".page");
-const navButtons = document.querySelectorAll(".nav-btn");
 
-/* Init */
+/* ==========================================
+   DOM READY
+========================================== */
 document.addEventListener("DOMContentLoaded", () => {
+
     showPage("home");
-    refreshDashboard();
+
 });
 
 
@@ -20,7 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
 ========================================== */
 function showPage(pageId){
 
-    pages.forEach(page=>{
+    document.querySelectorAll(".page")
+    .forEach(page=>{
         page.classList.remove("active");
     });
 
@@ -31,7 +32,8 @@ function showPage(pageId){
         target.classList.add("active");
     }
 
-    navButtons.forEach(btn=>{
+    document.querySelectorAll(".nav-btn")
+    .forEach(btn=>{
         btn.classList.remove("active-btn");
     });
 
@@ -42,39 +44,49 @@ function showPage(pageId){
         activeBtn.classList.add("active-btn");
     }
 
-    if(pageId === "home" || pageId === "list"){
+    if(pageId === "home" ||
+       pageId === "list"){
         refreshDashboard();
     }
 }
 
 
 /* ==========================================
-   SAVE BUTTON CLICK
+   SAVE REMINDER
 ========================================== */
 async function saveReminder(){
 
     const name =
-    document.getElementById("name").value.trim();
+    document.getElementById("name")
+    .value.trim();
 
     const mobile =
-    document.getElementById("mobile").value.trim();
+    document.getElementById("mobile")
+    .value.trim();
 
     const amount =
-    document.getElementById("amount").value.trim();
+    document.getElementById("amount")
+    .value.trim();
 
     const date =
-    document.getElementById("date").value;
+    document.getElementById("date")
+    .value;
 
     const note =
-    document.getElementById("note").value.trim();
+    document.getElementById("note")
+    .value.trim();
 
-    if(!name || !mobile || !amount || !date){
+    if(!name || !mobile ||
+       !amount || !date){
+
         alert("Please fill all fields.");
         return;
     }
 
-    if(mobile.length < 10 || isNaN(mobile)){
-        alert("Enter valid mobile number.");
+    if(mobile.length < 10 ||
+       isNaN(mobile)){
+
+        alert("Enter valid mobile.");
         return;
     }
 
@@ -84,7 +96,8 @@ async function saveReminder(){
     btn.innerText = "Saving...";
     btn.disabled = true;
 
-    const ok = await addRecordAPI({
+    const ok =
+    await addRecordAPI({
         name,
         mobile,
         amount,
@@ -92,35 +105,38 @@ async function saveReminder(){
         note
     });
 
-    btn.innerText = "Save Reminder";
+    btn.innerText =
+    "Save Reminder";
+
     btn.disabled = false;
 
     if(ok){
 
         clearForm();
 
-        alert("Reminder Saved");
+        alert("Saved Successfully");
 
         showPage("home");
 
     }else{
+
         alert("Save Failed");
     }
 }
 
 
 /* ==========================================
-   LOAD ALL UI DATA
+   LOAD DATA
 ========================================== */
 async function refreshDashboard(){
 
     showLoader();
 
-    const data = await getRecordsAPI();
-
-    hideLoader();
+    const data =
+    await getRecordsAPI();
 
     if(!data){
+
         renderError();
         return;
     }
@@ -136,17 +152,20 @@ async function refreshDashboard(){
 function renderDashboard(data){
 
     const today =
-    new Date().toISOString().split("T")[0];
+    new Date()
+    .toISOString()
+    .split("T")[0];
 
     let total = data.length;
     let pending = 0;
-    let dueToday = 0;
+    let due = 0;
     let paid = 0;
 
     data.forEach(row=>{
 
         if(row.status !== "Paid"){
-            pending += Number(row.amount);
+            pending +=
+            Number(row.amount);
         }
 
         if(row.status === "Paid"){
@@ -157,25 +176,27 @@ function renderDashboard(data){
           row.date === today &&
           row.status !== "Paid"
         ){
-            dueToday++;
+            due++;
         }
 
     });
 
     document.getElementById(
-    "totalCustomers").innerText = total;
+    "totalCustomers")
+    .innerText = total;
 
     document.getElementById(
-    "pendingAmount").innerText =
+    "pendingAmount")
+    .innerText =
     "₹" + pending;
 
     document.getElementById(
-    "dueToday").innerText =
-    dueToday;
+    "dueToday")
+    .innerText = due;
 
     document.getElementById(
-    "paidCount").innerText =
-    paid;
+    "paidCount")
+    .innerText = paid;
 }
 
 
@@ -185,23 +206,32 @@ function renderDashboard(data){
 function renderRecords(data){
 
     const box =
-    document.getElementById("records");
+    document.getElementById(
+    "records"
+    );
 
     if(!box) return;
 
+    const searchInput =
+    document.getElementById(
+    "search"
+    );
+
     const search =
-    document.getElementById("search")
-    ? document.getElementById("search")
-      .value.toLowerCase()
+    searchInput
+    ? searchInput.value
+      .toLowerCase()
     : "";
 
     const today =
-    new Date().toISOString()
+    new Date()
+    .toISOString()
     .split("T")[0];
 
     let html = "";
 
-    data.reverse().forEach(row=>{
+    data.reverse()
+    .forEach(row=>{
 
         const text =
         (
@@ -233,47 +263,46 @@ function renderRecords(data){
         html += `
         <div class="${cls}">
 
-            <h3>${row.name}</h3>
+        <h3>${row.name}</h3>
 
-            <p>📞 ${row.mobile}</p>
-            <p>₹ ${row.amount}</p>
-            <p>📅 ${row.date}</p>
-            <p>📝 ${row.note || "-"}</p>
-            <p>Status: ${row.status}</p>
+        <p>📞 ${row.mobile}</p>
+        <p>₹ ${row.amount}</p>
+        <p>📅 ${row.date}</p>
+        <p>📝 ${row.note || "-"}</p>
+        <p>Status: ${row.status}</p>
 
-            <div class="actions">
+        <div class="actions">
 
-                ${
-                row.status !== "Paid"
-                ?
-                `<button class="paid"
-                 onclick="payNow(${row.row})">
-                 Paid
-                 </button>`
-                :
-                `<button class="paid">
-                 Done
-                 </button>`
-                }
+        ${
+        row.status !== "Paid"
+        ?
+        `<button class="paid"
+        onclick="payNow(${row.row})">
+        Paid
+        </button>`
+        :
+        `<button class="paid">
+        Done
+        </button>`
+        }
 
-                <button class="whatsapp"
-                onclick="sendWA(
-                '${row.mobile}',
-                '${row.name}',
-                '${row.amount}'
-                )">
-                WA
-                </button>
+        <button class="whatsapp"
+        onclick="sendWA(
+        '${row.mobile}',
+        '${row.name}',
+        '${row.amount}'
+        )">
+        WA
+        </button>
 
-                <button class="delete"
-                onclick="removeRecord(
-                ${row.row}
-                )">
-                Delete
-                </button>
+        <button class="delete"
+        onclick="removeRecord(
+        ${row.row}
+        )">
+        Delete
+        </button>
 
-            </div>
-
+        </div>
         </div>
         `;
     });
@@ -290,7 +319,7 @@ function renderRecords(data){
 
 
 /* ==========================================
-   MARK PAID
+   PAID
 ========================================== */
 async function payNow(row){
 
@@ -326,7 +355,8 @@ mobile,name,amount
 const msg =
 `Hello ${name},
 
-Your payment of ₹${amount} is pending.
+Your payment of ₹${amount}
+is pending.
 
 Please pay soon.
 
@@ -348,18 +378,30 @@ encodeURIComponent(msg),
 ========================================== */
 function clearForm(){
 
-document.getElementById("name").value="";
-document.getElementById("mobile").value="";
-document.getElementById("amount").value="";
-document.getElementById("date").value="";
-document.getElementById("note").value="";
+document.getElementById(
+"name").value = "";
+
+document.getElementById(
+"mobile").value = "";
+
+document.getElementById(
+"amount").value = "";
+
+document.getElementById(
+"date").value = "";
+
+document.getElementById(
+"note").value = "";
 
 }
+
 
 function showLoader(){
 
 const box =
-document.getElementById("records");
+document.getElementById(
+"records"
+);
 
 if(box){
 box.innerHTML =
@@ -370,12 +412,13 @@ Loading...
 
 }
 
-function hideLoader(){}
 
 function renderError(){
 
 const box =
-document.getElementById("records");
+document.getElementById(
+"records"
+);
 
 if(box){
 box.innerHTML =
@@ -384,355 +427,19 @@ Unable to connect backend.
 </div>`;
 }
 
-}        const today =
-        new Date().toISOString().split("T")[0];
-
-        const search =
-        document.getElementById("search")
-        ? document.getElementById("search").value.toLowerCase()
-        : "";
-
-        let html = "";
-
-        let totalCustomers = 0;
-        let pendingAmount = 0;
-        let dueToday = 0;
-        let paidCount = 0;
-
-        data.reverse().forEach(row=>{
-
-            totalCustomers++;
-
-            if(row.status !== "Paid"){
-                pendingAmount += Number(row.amount);
-            }
-
-            if(row.status === "Paid"){
-                paidCount++;
-            }
-
-            if(row.date === today &&
-               row.status !== "Paid"){
-                dueToday++;
-            }
-
-            const searchText =
-            (row.name + " " +
-             row.mobile + " " +
-             row.note).toLowerCase();
-
-            if(search &&
-              !searchText.includes(search)){
-                return;
-            }
-
-            let cls = "record";
-
-            if(row.date < today &&
-               row.status !== "Paid"){
-                cls += " overdue";
-            }
-            else if(row.date === today &&
-                    row.status !== "Paid"){
-                cls += " today";
-            }
-
-            html += `
-            <div class="${cls}">
-                <h3>${row.name}</h3>
-
-                <p>📞 ${row.mobile}</p>
-                <p>₹ ${row.amount}</p>
-                <p>📅 ${row.date}</p>
-                <p>📝 ${row.note || "-"}</p>
-                <p>Status: ${row.status}</p>
-
-                <div class="actions">
-
-                    ${
-                        row.status !== "Paid"
-                        ? `<button class="paid"
-                           onclick="markPaid(${row.row})">
-                           Paid
-                           </button>`
-
-                        : `<button class="paid">
-                           Done
-                           </button>`
-                    }
-
-                    <button class="whatsapp"
-                    onclick="sendWhatsApp(
-                    '${row.mobile}',
-                    '${row.name}',
-                    '${row.amount}'
-                    )">
-                    WA
-                    </button>
-
-                    <button class="delete"
-                    onclick="deleteRecord(${row.row})">
-                    Delete
-                    </button>
-
-                </div>
-            </div>
-            `;
-        });
-
-        if(html === ""){
-            html =
-            `<div class="card empty">
-            No reminders found.
-            </div>`;
-        }
-
-        document.getElementById("records")
-        .innerHTML = html;
-
-        document.getElementById("totalCustomers")
-        .innerText = totalCustomers;
-
-        document.getElementById("pendingAmount")
-        .innerText = "₹" + pendingAmount;
-
-        document.getElementById("dueToday")
-        .innerText = dueToday;
-
-        document.getElementById("paidCount")
-        .innerText = paidCount;
-
-    }catch(error){
-
-        console.log(error);
-
-        document.getElementById("records")
-        .innerHTML =
-        `<div class="card empty">
-        Unable to load data.
-        </div>`;
-    }
 }
 
-
-/* ==================================
-   MARK AS PAID
-================================== */
-async function markPaid(row){
-
-    const form = new URLSearchParams();
-    form.append("action","paid");
-    form.append("row",row);
-
-    await fetch(sheetURL,{
-        method:"POST",
-        body:form
-    });
-
-    loadData();
-}
-
-
-/* ==================================
-   DELETE RECORD
-================================== */
-async function deleteRecord(row){
-
-    if(!confirm("Delete this reminder?")){
-        return;
-    }
-
-    const form = new URLSearchParams();
-    form.append("action","delete");
-    form.append("row",row);
-
-    await fetch(sheetURL,{
-        method:"POST",
-        body:form
-    });
-
-    loadData();
-}
-
-
-/* ==================================
-   WHATSAPP MESSAGE
-================================== */
-function sendWhatsApp(
-mobile,name,amount){
-
-    const msg =
-`Hello ${name},
-
-Your payment of ₹${amount} is pending.
-
-Please pay soon.
-
-Khanta Enterprises`;
-
-    const url =
-    "https://wa.me/91" +
-    mobile +
-    "?text=" +
-    encodeURIComponent(msg);
-
-    window.open(url,"_blank");
-}
-
-
-/* ==================================
-   AUTO START
-================================== */
-loadData();        const search = searchBox
-            ? searchBox.value.toLowerCase()
-            : "";
-
-        data.reverse().forEach(row => {
-
-            totalCustomers++;
-
-            if (row.status !== "Paid") {
-                pendingAmount += Number(row.amount);
-            }
-
-            if (row.status === "Paid") {
-                paidCount++;
-            }
-
-            if (row.date === today && row.status !== "Paid") {
-                dueToday++;
-            }
-
-            if (search && !row.name.toLowerCase().includes(search)) {
-                return;
-            }
-
-            let cls = "record";
-
-            if (row.date < today && row.status !== "Paid") {
-                cls += " overdue";
-            }
-            else if (row.date === today && row.status !== "Paid") {
-                cls += " today";
-            }
-
-            html += `
-            <div class="${cls}">
-                <h3>${row.name}</h3>
-                <p>📞 ${row.mobile}</p>
-                <p>₹ ${row.amount}</p>
-                <p>📅 ${row.date}</p>
-                <p>📝 ${row.note || ""}</p>
-                <p>Status: ${row.status}</p>
-
-                <div class="actions">
-
-                    ${
-                        row.status !== "Paid"
-                        ? `<button class="paid" onclick="markPaid(${row.row})">Paid</button>`
-                        : `<button class="paid">Done</button>`
-                    }
-
-                    <button class="whatsapp"
-                    onclick="sendWhatsApp('${row.mobile}','${row.name}','${row.amount}')">
-                    WA
-                    </button>
-
-                    <button class="delete"
-                    onclick="deleteRecord(${row.row})">
-                    Delete
-                    </button>
-
-                </div>
-            </div>
-            `;
-        });
-
-        document.getElementById("records").innerHTML = html;
-
-        document.getElementById("totalCustomers").innerText = totalCustomers;
-        document.getElementById("pendingAmount").innerText = "₹" + pendingAmount;
-        document.getElementById("dueToday").innerText = dueToday;
-        document.getElementById("paidCount").innerText = paidCount;
-
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-
-/* ===============================
-   MARK PAID
-   =============================== */
-async function markPaid(row) {
-
-    const form = new URLSearchParams();
-    form.append("action", "paid");
-    form.append("row", row);
-
-    await fetch(sheetURL, {
-        method: "POST",
-        body: form
-    });
-
-    loadData();
-}
-
-
-/* ===============================
-   DELETE RECORD
-   =============================== */
-async function deleteRecord(row) {
-
-    if (!confirm("Delete this reminder?")) return;
-
-    const form = new URLSearchParams();
-    form.append("action", "delete");
-    form.append("row", row);
-
-    await fetch(sheetURL, {
-        method: "POST",
-        body: form
-    });
-
-    loadData();
-}
-
-
-/* ===============================
-   WHATSAPP REMINDER
-   =============================== */
-function sendWhatsApp(mobile, name, amount) {
-
-    const msg =
-`Hello ${name},
-
-Your payment of ₹${amount} is pending.
-
-Please pay soon.
-
-Khanta Enterprises`;
-
-    const url =
-    "https://wa.me/91" +
-    mobile +
-    "?text=" +
-    encodeURIComponent(msg);
-
-    window.open(url, "_blank");
-}
 
 /* ==========================================
-   GLOBAL ACCESS FOR HTML BUTTONS
+   GLOBAL FUNCTIONS
 ========================================== */
-
 window.showPage = showPage;
 window.saveReminder = saveReminder;
-window.refreshDashboard = refreshDashboard;
+window.refreshDashboard =
+refreshDashboard;
+
 window.payNow = payNow;
-window.removeRecord = removeRecord;
+window.removeRecord =
+removeRecord;
+
 window.sendWA = sendWA;
-/* ===============================
-   START APP
-   =============================== */
-loadData();
