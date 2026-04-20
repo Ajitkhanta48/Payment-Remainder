@@ -8,9 +8,8 @@ function showPage(pageId){
 
     document.getElementById(pageId).classList.add("active");
 
-    if(pageId === "list" || pageId === "home"){
-        loadData();
-    }
+    if(pageId === "list") loadData();
+    if(pageId === "home") loadData();
 }
 
 /* ---------- Add Reminder ---------- */
@@ -27,132 +26,114 @@ async function addRecord(){
         return;
     }
 
-    try{
+    await fetch(sheetURL,{
+        method:"POST",
+        body:JSON.stringify({
+            action:"add",
+            name:name,
+            mobile:mobile,
+            amount:amount,
+            date:date,
+            note:note
+        })
+    });
 
-        await fetch(sheetURL,{
-            method:"POST",
-            mode:"no-cors",
-            headers:{
-                "Content-Type":"text/plain;charset=utf-8"
-            },
-            body:JSON.stringify({
-                action:"add",
-                name:name,
-                mobile:mobile,
-                amount:amount,
-                date:date,
-                note:note
-            })
-        });
+    alert("Reminder Saved");
 
-        alert("Reminder Saved");
+    document.getElementById("name").value="";
+    document.getElementById("mobile").value="";
+    document.getElementById("amount").value="";
+    document.getElementById("date").value="";
+    document.getElementById("note").value="";
 
-        document.getElementById("name").value="";
-        document.getElementById("mobile").value="";
-        document.getElementById("amount").value="";
-        document.getElementById("date").value="";
-        document.getElementById("note").value="";
-
-        showPage("home");
-
-        setTimeout(loadData,1200);
-
-    }catch(error){
-        alert("Save Failed");
-        console.log(error);
-    }
+    showPage("home");
+    loadData();
 }
 
 /* ---------- Load Records ---------- */
 async function loadData(){
 
-    try{
+    const res = await fetch(sheetURL);
+    const data = await res.json();
 
-        const res = await fetch(sheetURL);
-        const data = await res.json();
+    const searchBox = document.getElementById("search");
+    const search = searchBox ? searchBox.value.toLowerCase() : "";
 
-        const searchBox = document.getElementById("search");
-        const search = searchBox ? searchBox.value.toLowerCase() : "";
+    let html = "";
 
-        let html = "";
+    let totalCustomers = 0;
+    let pendingAmount = 0;
+    let dueToday = 0;
+    let paidCount = 0;
 
-        let totalCustomers = 0;
-        let pendingAmount = 0;
-        let dueToday = 0;
-        let paidCount = 0;
+    const today = new Date().toISOString().split("T")[0];
 
-        const today = new Date().toISOString().split("T")[0];
+    data.reverse().forEach(row => {
 
-        data.reverse().forEach(row => {
+        totalCustomers++;
 
-            totalCustomers++;
+        if(row.status !== "Paid"){
+            pendingAmount += Number(row.amount);
+        }
 
-            if(row.status !== "Paid"){
-                pendingAmount += Number(row.amount);
-            }
+        if(row.date === today && row.status !== "Paid"){
+            dueToday++;
+        }
 
-            if(row.date === today && row.status !== "Paid"){
-                dueToday++;
-            }
+        if(row.status === "Paid"){
+            paidCount++;
+        }
 
-            if(row.status === "Paid"){
-                paidCount++;
-            }
+        if(search && !row.name.toLowerCase().includes(search)){
+            return;
+        }
 
-            if(search && !row.name.toLowerCase().includes(search)){
-                return;
-            }
+        let cls = "record";
 
-            let cls = "record";
+        if(row.date < today && row.status !== "Paid"){
+            cls += " overdue";
+        }else if(row.date === today && row.status !== "Paid"){
+            cls += " today";
+        }
 
-            if(row.date < today && row.status !== "Paid"){
-                cls += " overdue";
-            }else if(row.date === today && row.status !== "Paid"){
-                cls += " today";
-            }
+        html += `
+        <div class="${cls}">
+            <h3>${row.name}</h3>
+            <p>ðŸ“ž ${row.mobile}</p>
+            <p>â‚¹ ${row.amount}</p>
+            <p>ðŸ“… ${row.date}</p>
+            <p>ðŸ“ ${row.note || ""}</p>
+            <p>Status: ${row.status}</p>
 
-            html += `
-            <div class="${cls}">
-                <h3>${row.name}</h3>
-                <p>📞 ${row.mobile}</p>
-                <p>₹ ${row.amount}</p>
-                <p>📅 ${row.date}</p>
-                <p>📝 ${row.note || ""}</p>
-                <p>Status: ${row.status}</p>
+            <div class="actions">
 
-                <div class="actions">
+                ${
+                row.status !== "Paid"
+                ? `<button class="paid" onclick="markPaid(${row.row})">Paid</button>`
+                : `<button class="paid">Done</button>`
+                }
 
-                    ${
-                    row.status !== "Paid"
-                    ? `<button class="paid" onclick="markPaid(${row.row})">Paid</button>`
-                    : `<button class="paid">Done</button>`
-                    }
+                <button class="whatsapp"
+                onclick="sendWhatsApp('${row.mobile}','${row.name}','${row.amount}')">
+                WA
+                </button>
 
-                    <button class="whatsapp"
-                    onclick="sendWhatsApp('${row.mobile}','${row.name}','${row.amount}')">
-                    WA
-                    </button>
+                <button class="delete"
+                onclick="deleteRecord(${row.row})">
+                Delete
+                </button>
 
-                    <button class="delete"
-                    onclick="deleteRecord(${row.row})">
-                    Delete
-                    </button>
+            </div>
+        </div>`;
+    });
 
-                </div>
-            </div>`;
-        });
+    const records = document.getElementById("records");
+    if(records) records.innerHTML = html;
 
-        const records = document.getElementById("records");
-        if(records) records.innerHTML = html;
-
-        document.getElementById("totalCustomers").innerText = totalCustomers;
-        document.getElementById("pendingAmount").innerText = "₹" + pendingAmount;
-        document.getElementById("dueToday").innerText = dueToday;
-        document.getElementById("paidCount").innerText = paidCount;
-
-    }catch(error){
-        console.log(error);
-    }
+    document.getElementById("totalCustomers").innerText = totalCustomers;
+    document.getElementById("pendingAmount").innerText = "â‚¹" + pendingAmount;
+    document.getElementById("dueToday").innerText = dueToday;
+    document.getElementById("paidCount").innerText = paidCount;
 }
 
 /* ---------- Mark Paid ---------- */
@@ -160,17 +141,13 @@ async function markPaid(row){
 
     await fetch(sheetURL,{
         method:"POST",
-        mode:"no-cors",
-        headers:{
-            "Content-Type":"text/plain;charset=utf-8"
-        },
         body:JSON.stringify({
             action:"paid",
             row:row
         })
     });
 
-    setTimeout(loadData,1000);
+    loadData();
 }
 
 /* ---------- Delete ---------- */
@@ -180,17 +157,13 @@ async function deleteRecord(row){
 
     await fetch(sheetURL,{
         method:"POST",
-        mode:"no-cors",
-        headers:{
-            "Content-Type":"text/plain;charset=utf-8"
-        },
         body:JSON.stringify({
             action:"delete",
             row:row
         })
     });
 
-    setTimeout(loadData,1000);
+    loadData();
 }
 
 /* ---------- WhatsApp ---------- */
@@ -198,7 +171,7 @@ function sendWhatsApp(mobile,name,amount){
 
     const msg =
 `Hello ${name},
-Your payment of ₹${amount} is pending.
+Your payment of â‚¹${amount} is pending.
 Please pay soon.
 Khanta Enterprises`;
 
