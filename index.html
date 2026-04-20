@@ -10,11 +10,12 @@
 
 <div class="container">
 
+<!-- HEADER -->
 <header>
     <h1>Khanta Reminder</h1>
 </header>
 
-<!-- TOP NAVBAR -->
+<!-- TOP NAVIGATION -->
 <nav class="top-nav">
     <button onclick="showPage('home')">Home</button>
     <button onclick="showPage('add')">Add</button>
@@ -56,13 +57,9 @@
 <div class="card">
 
 <input type="text" id="name" placeholder="Customer Name">
-
 <input type="text" id="mobile" placeholder="Mobile Number">
-
 <input type="number" id="amount" placeholder="Amount">
-
 <input type="date" id="date">
-
 <input type="text" id="note" placeholder="Note">
 
 <button onclick="addRecord()">Save Reminder</button>
@@ -84,7 +81,17 @@
 
 </div>
 
+<!-- FOOTER -->
+<footer>
+    <p>© <span id="year"></span> <strong>Khanta Enterprises</strong></p>
+    <p>Payment Reminder System</p>
+</footer>
+
 <script src="script.js"></script>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
