@@ -1,76 +1,53 @@
 /* ==========================================
    Khanta Payment Reminder
-   FINAL PRODUCTION api.js
+   FINAL GET BASED api.js
+   No POST / Android Safe / GitHub Safe
 ========================================== */
 
-const API_URL =
+var API_URL =
 "https://script.google.com/macros/s/AKfycby8zE_4fozs1ps3wmF3yj_DQPcuO7akkXEM1z_pD1z3X4J2caCQW8pocTTacPP9X3BbgA/exec";
-
-/* Request timeout */
-const API_TIMEOUT = 15000;
 
 
 /* ==========================================
-   CORE REQUEST
+   CORE FETCH
 ========================================== */
-async function requestAPI(
-method = "GET",
-body = null
-){
+function fetchJSON(url){
 
-const controller =
-new AbortController();
+return fetch(url,{
+method:"GET",
+cache:"no-store",
+redirect:"follow"
+})
 
-const timer =
-setTimeout(()=>{
+.then(function(res){
+return res.text();
+})
 
-controller.abort();
+.then(function(txt){
 
-},API_TIMEOUT);
+if(!txt || txt === ""){
+return [];
+}
 
 try{
-
-const options = {
-method,
-signal:
-controller.signal
-};
-
-if(body){
-options.body = body;
+return JSON.parse(txt);
+}catch(e){
+console.log(
+"JSON Error:",e
+);
+return [];
 }
 
-const res =
-await fetch(
-API_URL,
-options
-);
+})
 
-clearTimeout(
-timer
-);
-
-if(!res.ok){
-throw new Error(
-"Server Error"
-);
-}
-
-return res;
-
-}catch(error){
-
-clearTimeout(
-timer
-);
+.catch(function(err){
 
 console.log(
-"API Error:",
-error
+"Fetch Error:",err
 );
 
-return null;
-}
+return [];
+});
 
 }
 
@@ -78,39 +55,146 @@ return null;
 /* ==========================================
    GET RECORDS
 ========================================== */
-async function getRecordsAPI(){
+function getRecordsAPI(){
 
-const res =
-await requestAPI(
-"GET"
-);
+var url =
+API_URL +
+"?t=" +
+new Date().getTime();
 
-if(!res) return null;
-
-try{
-
-const data =
-await res.json();
-
-return Array.isArray(data)
-? data
-: [];
-
-}catch(error){
-
-console.log(
-"JSON Error:",
-error
-);
-
-return [];
-}
+return fetchJSON(url);
 
 }
 
 
 /* ==========================================
    ADD RECORD
+========================================== */
+function addRecordAPI(data){
+
+var url =
+API_URL +
+"?action=add" +
+
+"&name=" +
+encodeURIComponent(
+data.name
+) +
+
+"&mobile=" +
+encodeURIComponent(
+data.mobile
+) +
+
+"&amount=" +
+encodeURIComponent(
+data.amount
+) +
+
+"&date=" +
+encodeURIComponent(
+data.date
+) +
+
+"&note=" +
+encodeURIComponent(
+data.note
+) +
+
+"&t=" +
+new Date().getTime();
+
+return fetchJSON(url)
+.then(function(){
+return true;
+})
+.catch(function(){
+return false;
+});
+
+}
+
+
+/* ==========================================
+   MARK PAID
+========================================== */
+function markPaidAPI(row){
+
+var url =
+API_URL +
+"?action=paid" +
+
+"&row=" +
+encodeURIComponent(
+row
+) +
+
+"&t=" +
+new Date().getTime();
+
+return fetchJSON(url)
+.then(function(){
+return true;
+})
+.catch(function(){
+return false;
+});
+
+}
+
+
+/* ==========================================
+   DELETE
+========================================== */
+function deleteRecordAPI(row){
+
+var url =
+API_URL +
+"?action=delete" +
+
+"&row=" +
+encodeURIComponent(
+row
+) +
+
+"&t=" +
+new Date().getTime();
+
+return fetchJSON(url)
+.then(function(){
+return true;
+})
+.catch(function(){
+return false;
+});
+
+}
+
+
+/* ==========================================
+   PING
+========================================== */
+function pingAPI(){
+
+var url =
+API_URL +
+"?t=" +
+new Date().getTime();
+
+return fetch(url,{
+method:"GET",
+cache:"no-store"
+})
+
+.then(function(){
+return true;
+})
+
+.catch(function(){
+return false;
+});
+
+}   ADD RECORD
 ========================================== */
 async function addRecordAPI(data){
 
