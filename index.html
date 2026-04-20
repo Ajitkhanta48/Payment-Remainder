@@ -1,154 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khanta Payment Reminder</title>
 
-<link rel="stylesheet" href="style.css">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="theme-color"
+content="#2563eb">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="description"
+content="Khanta Payment Reminder App">
+
+<meta name="apple-mobile-web-app-capable"
+content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style"
+content="default">
+
+<meta name="apple-mobile-web-app-title"
+content="Khanta Reminder">
+
+<title>
+Khanta Payment Reminder
+</title>
+
+<link rel="stylesheet"
+href="style.css">
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+rel="stylesheet">
+
 </head>
 
 <body>
 
 <div class="app">
 
-    <!-- HEADER -->
-    <header class="header">
-        <h1>Khanta Payment Reminder</h1>
-        <p>Manage pending collections smartly</p>
-    </header>
+<!-- HEADER -->
+<header class="header">
+
+<h1>
+Khanta Payment Reminder
+</h1>
+
+<p>
+Manage pending collections smartly
+</p>
+
+</header>
 
 
-    <!-- NAVIGATION -->
-    <nav class="nav">
+<!-- NAV -->
+<nav class="nav">
 
-        <button
-        type="button"
-        id="homeBtn"
-        class="nav-btn active-btn"
-        onclick="showPage('home')">
-        Home
-        </button>
+<button
+type="button"
+id="homeBtn"
+class="nav-btn active-btn">
+🏠 Home
+</button>
 
-        <button
-        type="button"
-        id="addBtn"
-        class="nav-btn"
-        onclick="showPage('add')">
-        Add
-        </button>
+<button
+type="button"
+id="addBtn"
+class="nav-btn">
+➕ Add
+</button>
 
-        <button
-        type="button"
-        id="listBtn"
-        class="nav-btn"
-        onclick="showPage('list')">
-        List
-        </button>
+<button
+type="button"
+id="listBtn"
+class="nav-btn">
+📋 List
+</button>
 
-    </nav>
+</nav>
 
 
-    <!-- HOME PAGE -->
-    <section id="home" class="page active">
+<!-- HOME -->
+<section
+id="home"
+class="page active">
 
-        <div class="grid">
+<div class="grid">
 
-            <div class="card stat">
-                <h2 id="totalCustomers">0</h2>
-                <p>Customers</p>
-            </div>
+<div class="card stat">
+<h2 id="totalCustomers">0</h2>
+<p>Customers</p>
+</div>
 
-            <div class="card stat">
-                <h2 id="pendingAmount">₹0</h2>
-                <p>Pending</p>
-            </div>
+<div class="card stat">
+<h2 id="pendingAmount">₹0</h2>
+<p>Pending</p>
+</div>
 
-            <div class="card stat">
-                <h2 id="dueToday">0</h2>
-                <p>Due Today</p>
-            </div>
+<div class="card stat">
+<h2 id="dueToday">0</h2>
+<p>Due Today</p>
+</div>
 
-            <div class="card stat">
-                <h2 id="paidCount">0</h2>
-                <p>Paid</p>
-            </div>
+<div class="card stat">
+<h2 id="paidCount">0</h2>
+<p>Paid</p>
+</div>
 
-        </div>
+</div>
 
-    </section>
-
-
-    <!-- ADD PAGE -->
-    <section id="add" class="page">
-
-        <div class="card form-card">
-
-            <h3>Add New Reminder</h3>
-
-            <input type="text"
-            id="name"
-            placeholder="Customer Name">
-
-            <input type="tel"
-            id="mobile"
-            maxlength="10"
-            placeholder="Mobile Number">
-
-            <input type="number"
-            id="amount"
-            placeholder="Amount">
-
-            <input type="date"
-            id="date">
-
-            <input type="text"
-            id="note"
-            placeholder="Note">
-
-            <button
-            type="button"
-            id="saveBtn"
-            onclick="saveReminder()">
-            Save Reminder
-            </button>
-
-        </div>
-
-    </section>
+</section>
 
 
-    <!-- LIST PAGE -->
-    <section id="list" class="page">
+<!-- ADD -->
+<section
+id="add"
+class="page">
 
-        <div class="card search-card">
+<div class="card form-card">
 
-            <input
-            type="text"
-            id="search"
-            placeholder="Search Customer..."
-            onkeyup="refreshDashboard()">
+<h3>
+Add New Reminder
+</h3>
 
-        </div>
+<input
+type="text"
+id="name"
+placeholder="Customer Name"
+autocomplete="off">
 
-        <div id="records"></div>
+<input
+type="tel"
+id="mobile"
+placeholder="Mobile Number"
+maxlength="10"
+inputmode="numeric"
+autocomplete="off">
 
-    </section>
+<input
+type="number"
+id="amount"
+placeholder="Amount">
+
+<input
+type="date"
+id="date">
+
+<input
+type="text"
+id="note"
+placeholder="Note"
+autocomplete="off">
+
+<button
+type="button"
+id="saveBtn">
+💾 Save Reminder
+</button>
+
+</div>
+
+</section>
+
+
+<!-- LIST -->
+<section
+id="list"
+class="page">
+
+<div class="card search-card">
+
+<input
+type="text"
+id="search"
+placeholder="🔍 Search Customer..."
+autocomplete="off">
+
+</div>
+
+<div id="records">
+
+<div class="skeleton"></div>
+<div class="skeleton"></div>
+
+</div>
+
+</section>
 
 </div>
 
 
 <!-- FOOTER -->
 <footer class="footer">
-    <p>
-    © <span id="year"></span>
-    Khanta Enterprises
-    </p>
+
+<p>
+© <span id="year"></span>
+Khanta Enterprises
+</p>
+
 </footer>
 
 
@@ -159,7 +214,7 @@ new Date().getFullYear();
 </script>
 
 
-<!-- IMPORTANT SCRIPT ORDER -->
+<!-- SCRIPT ORDER -->
 <script src="api.js"></script>
 <script src="app.js"></script>
 
