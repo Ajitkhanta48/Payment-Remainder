@@ -9,11 +9,19 @@ var appData = [];
 var isLoading = false;
 var lastFetch = 0;
 var CACHE_MS = 30000;
+var getRecordsAPI = typeof window.getRecordsAPI === "function" ? window.getRecordsAPI : null;
+var addRecordAPI = typeof window.addRecordAPI === "function" ? window.addRecordAPI : null;
+var markPaidAPI = typeof window.markPaidAPI === "function" ? window.markPaidAPI : null;
+var deleteRecordAPI = typeof window.deleteRecordAPI === "function" ? window.deleteRecordAPI : null;
 
 function apiFn(name) {
     if (typeof window[name] === "function") {
         return window[name];
     }
+    if (name === "getRecordsAPI") return getRecordsAPI;
+    if (name === "addRecordAPI") return addRecordAPI;
+    if (name === "markPaidAPI") return markPaidAPI;
+    if (name === "deleteRecordAPI") return deleteRecordAPI;
     return null;
 }
 
