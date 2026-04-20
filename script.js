@@ -31,20 +31,17 @@ return;
 
 try{
 
+const formData = new URLSearchParams();
+formData.append("action","add");
+formData.append("name",name);
+formData.append("mobile",mobile);
+formData.append("amount",amount);
+formData.append("date",date);
+formData.append("note",note);
+
 await fetch(sheetURL,{
 method:"POST",
-mode:"no-cors",
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-body:JSON.stringify({
-action:"add",
-name:name,
-mobile:mobile,
-amount:amount,
-date:date,
-note:note
-})
+body:formData
 });
 
 alert("Reminder Saved");
@@ -56,14 +53,11 @@ document.getElementById("date").value="";
 document.getElementById("note").value="";
 
 showPage("home");
-
 setTimeout(loadData,1500);
 
 }catch(error){
-
 alert("Save Failed");
 console.log(error);
-
 }
 
 }
