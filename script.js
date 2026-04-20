@@ -1,4 +1,4 @@
-const sheetURL = "https://script.google.com/macros/s/AKfycbxlbD2arRgr5FIsZYKjnAm-qfeZZD4adwV7IF1UZFPeVkLXbtbQg-HNAQ8W5RbIc7LD/exec";
+const sheetURL = "https://script.google.com/macros/s/AKfycbzHz-57K2bGgRD6Au8NRPxd4jgBab__p4I2OFQi9qUI/dev";
 
 /* ---------- Navigation ---------- */
 function showPage(pageId){
