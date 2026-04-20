@@ -73,30 +73,12 @@ function requestAction(action, params) {
 
     return fetch(API_URL + "?" + pairs.join("&"), {
         method: "GET",
+        mode: "no-cors",
         cache: "no-store",
         redirect: "follow"
     })
-        .then(function (res) {
-            if (!res.ok) {
-                throw new Error("HTTP " + res.status);
-            }
-            return res.text();
-        })
-        .then(function (txt) {
-            var parsed = safeParseJSON(txt, null);
-
-            if (hasSuccessFlag(parsed)) {
-                return true;
-            }
-
-            if (parsed === null && txt) {
-                var normalized = txt.toLowerCase();
-                if (normalized.indexOf("success") !== -1 || normalized.indexOf("ok") !== -1) {
-                    return true;
-                }
-            }
-
-            return false;
+        .then(function () {
+            return true;
         })
         .catch(function () {
             return false;
