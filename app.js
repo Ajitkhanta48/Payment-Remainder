@@ -9,6 +9,21 @@ var appData = [];
 var isLoading = false;
 var lastFetch = 0;
 var CACHE_MS = 30000;
+var getRecordsAPI = typeof window.getRecordsAPI === "function" ? window.getRecordsAPI : null;
+var addRecordAPI = typeof window.addRecordAPI === "function" ? window.addRecordAPI : null;
+var markPaidAPI = typeof window.markPaidAPI === "function" ? window.markPaidAPI : null;
+var deleteRecordAPI = typeof window.deleteRecordAPI === "function" ? window.deleteRecordAPI : null;
+
+function apiFn(name) {
+    if (typeof window[name] === "function") {
+        return window[name];
+    }
+    if (name === "getRecordsAPI") return getRecordsAPI;
+    if (name === "addRecordAPI") return addRecordAPI;
+    if (name === "markPaidAPI") return markPaidAPI;
+    if (name === "deleteRecordAPI") return deleteRecordAPI;
+    return null;
+}
 
 /* ==========================================
    START
@@ -120,7 +135,14 @@ function fullRefresh() {
         showLoader();
     }
 
-    getRecordsAPI().then(function (data) {
+    var getRecords = apiFn("getRecordsAPI");
+    if (!getRecords) {
+        isLoading = false;
+        renderError();
+        return;
+    }
+
+    getRecords().then(function (data) {
 
         isLoading = false;
 
@@ -146,7 +168,13 @@ function backgroundRefresh() {
 
     isLoading = true;
 
-    getRecordsAPI().then(function (data) {
+    var getRecords = apiFn("getRecordsAPI");
+    if (!getRecords) {
+        isLoading = false;
+        return;
+    }
+
+    getRecords().then(function (data) {
 
         isLoading = false;
 
@@ -194,7 +222,15 @@ function saveReminder() {
     btn.disabled = true;
     btn.innerHTML = "Saving...";
 
-    addRecordAPI(payload).then(function (ok) {
+    var addRecord = apiFn("addRecordAPI");
+    if (!addRecord) {
+        btn.disabled = false;
+        btn.innerHTML = "💾 Save Reminder";
+        toast("API Not Loaded");
+        return;
+    }
+
+    addRecord(payload).then(function (ok) {
 
         btn.disabled = false;
         btn.innerHTML = "💾 Save Reminder";
@@ -341,7 +377,13 @@ function renderRecords(data) {
 ========================================== */
 function payNow(row) {
 
-    markPaidAPI(row).then(function (ok) {
+    var markPaid = apiFn("markPaidAPI");
+    if (!markPaid) {
+        toast("API Not Loaded");
+        return;
+    }
+
+    markPaid(row).then(function (ok) {
 
         if (ok) {
             toast("Marked Paid");
@@ -361,7 +403,13 @@ function removeRecord(row) {
 
     if (!confirm("Delete reminder?")) return;
 
-    deleteRecordAPI(row).then(function (ok) {
+    var deleteRecord = apiFn("deleteRecordAPI");
+    if (!deleteRecord) {
+        toast("API Not Loaded");
+        return;
+    }
+
+    deleteRecord(row).then(function (ok) {
 
         if (ok) {
             toast("Deleted");
