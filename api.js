@@ -73,12 +73,30 @@ function requestAction(action, params) {
 
     return fetch(API_URL + "?" + pairs.join("&"), {
         method: "GET",
-        mode: "no-cors",
         cache: "no-store",
         redirect: "follow"
     })
-        .then(function () {
-            return true;
+        .then(function (res) {
+            if (!res.ok) {
+                throw new Error("HTTP " + res.status);
+            }
+            return res.text();
+        })
+        .then(function (txt) {
+            var parsed = safeParseJSON(txt, null);
+
+            if (hasSuccessFlag(parsed)) {
+                return true;
+            }
+
+            if (parsed === null && txt) {
+                var normalized = txt.toLowerCase();
+                if (normalized.indexOf("success") !== -1 || normalized.indexOf("ok") !== -1) {
+                    return true;
+                }
+            }
+
+            return false;
         })
         .catch(function () {
             return false;
@@ -111,6 +129,46 @@ var addRecordAPI = function (data) {
 ========================================== */
 var markPaidAPI = function (row) {
     return requestAction("paid", {
+        row: row
+    });
+};
+
+/* ==========================================
+   DELETE
+========================================== */
+var deleteRecordAPI = function (row) {
+    return requestAction("delete", {
+        row: row
+    });
+};
+
+/* ==========================================
+   HEALTH CHECK
+========================================== */
+var pingAPI = function () {
+    var url = API_URL + "?t=" + new Date().getTime();
+
+    return fetch(url, {
+        method: "GET",
+        cache: "no-store",
+        redirect: "follow"
+    })
+        .then(function (res) {
+            return !!res.ok;
+        })
+        .catch(function () {
+            return false;
+        });
+};
+
+/* ==========================================
+   GLOBAL EXPORT
+========================================== */
+window.getRecordsAPI = getRecordsAPI;
+window.addRecordAPI = addRecordAPI;
+window.markPaidAPI = markPaidAPI;
+window.deleteRecordAPI = deleteRecordAPI;
+window.pingAPI = pingAPI;    return requestAction("paid", {
         row: row
     });
 };
