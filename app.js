@@ -114,13 +114,24 @@ function installFallbackAPI() {
 /* ==========================================
    START
 ========================================== */
-document.addEventListener("DOMContentLoaded", function () {
+var appBooted = false;
+
+function initApp() {
+    if (appBooted) return;
+    appBooted = true;
+
     installFallbackAPI();
     setupEvents();
     setYear();
     initNetworkBar();
     showPage("home");
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initApp);
+} else {
+    initApp();
+}
 
 /* ==========================================
    EVENTS
